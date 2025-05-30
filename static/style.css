@@ -1,0 +1,275 @@
+/* 全局样式 */
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+    font-family: 'Inter', sans-serif;
+    color: #1a1a1a;
+}
+
+.container {
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 2rem 0;
+}
+
+/* 标题样式 */
+h1 {
+    background: linear-gradient(120deg, #2563eb, #4f46e5);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+h1::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, #2563eb, #4f46e5);
+    border-radius: 2px;
+}
+
+/* 表单样式 */
+#transcriptionForm {
+    background: linear-gradient(145deg, #ffffff, #f8fafc);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    margin: 0 auto;
+}
+
+.space-y-2 {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem !important;
+}
+
+label span {
+    color: #6b7280;
+    font-weight: normal;
+}
+
+input[type="file"],
+input[type="text"] {
+    background: white;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e5e7eb;
+    font-size: 0.95rem;
+    padding: 0.75rem 1rem;
+}
+
+input[type="file"]:hover,
+input[type="text"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+    border-color: #d1d5db;
+}
+
+input[type="file"]:focus,
+input[type="text"]:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+    border-color: #3b82f6;
+    outline: none;
+}
+
+/* 按钮样式 */
+#submitBtn {
+    background: linear-gradient(135deg, #2563eb, #4f46e5);
+    border: none;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    transition: all 0.2s ease;
+    margin-top: 2rem;
+    height: 48px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+#submitBtn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+    filter: brightness(1.05);
+}
+
+#submitBtn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+}
+
+#submitBtn:disabled {
+    background: linear-gradient(135deg, #94a3b8, #cbd5e1);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* 结果区域样式 */
+#transcriptionResult {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    padding: 1.5rem;
+    line-height: 1.6;
+    font-family: 'Inter', sans-serif;
+    width: 100%;
+    height: auto;
+    min-height: 400px;
+    max-height: 600px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    margin: 0;
+}
+
+#transcriptionResult::-webkit-scrollbar {
+    width: 8px;
+}
+
+#transcriptionResult::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+#transcriptionResult::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+#transcriptionResult::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+/* 状态消息样式 */
+.status-message {
+    padding: 1rem 1.25rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    font-size: 0.95rem;
+    animation: fadeIn 0.3s ease;
+}
+
+.status-message.error {
+    background-color: #fef2f2;
+    border: 1px solid #fee2e2;
+    color: #dc2626;
+}
+
+.status-message.success {
+    background-color: #f0fdf4;
+    border: 1px solid #dcfce7;
+    color: #16a34a;
+}
+
+.status-message.info {
+    background-color: #f0f7ff;
+    border: 1px solid #e0f2fe;
+    color: #2563eb;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .container {
+        margin: 0.5rem;
+        padding: 1rem;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    #transcriptionForm {
+        padding: 1.25rem;
+    }
+
+    input[type="file"],
+    input[type="text"] {
+        font-size: 0.9rem;
+        padding: 0.625rem 0.875rem;
+    }
+
+    #submitBtn {
+        height: 44px;
+        margin-top: 1.5rem;
+    }
+}
+
+/* 文件选择按钮样式 */
+.relative {
+    position: relative;
+}
+
+input[type="file"] {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    position: absolute;
+    z-index: -1;
+}
+
+.file-input-label {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.file-input-label:hover {
+    background-color: #f9fafb;
+    border-color: #d1d5db;
+}
+
+#fileNameDisplay {
+    color: #6b7280;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+    line-height: 1;
+}
+
+/* 复制按钮样式 */
+#copyBtn {
+    background: linear-gradient(135deg, #4f46e5, #3b82f6);
+    transition: all 0.2s ease;
+}
+
+#copyBtn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+}
+
+#copyBtn.bg-green-500 {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+#copyBtn.bg-red-500 {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}

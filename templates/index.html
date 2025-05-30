@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>语音转文本</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-gray-100 min-h-screen py-8 px-4">
+    <div class="container mx-auto bg-white shadow-xl rounded-2xl w-full max-w-6xl overflow-hidden">
+        <div class="relative text-center">
+            <h1 class="text-4xl font-bold py-8">语音转文本</h1>
+            <p class="text-gray-600 text-lg">使用硅基流动相关模型，将您的音频转换为文字</p>
+        </div>
+        
+        <div class="md:flex md:space-x-8 p-6 md:p-10">
+            <div class="md:w-2/5">
+                <form id="transcriptionForm" class="space-y-6 p-8 rounded-xl">
+                    <div class="space-y-2">
+                        <label for="audioFile" class="block text-sm font-medium text-gray-700">
+                            音频文件
+                            <span class="text-xs text-gray-500">支持多种音频格式</span>
+                        </label>
+                        <div class="relative">
+                            <div class="flex items-center">
+                                <label for="audioFile" class="cursor-pointer inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                                    <svg class="w-5 h-5 mr-2 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                    </svg>
+                                    选择音频文件
+                                </label>
+                                <span id="fileNameDisplay" class="ml-3 text-sm text-gray-500">未选择文件</span>
+                            </div>
+                            <input type="file" id="audioFile" name="audio_file" accept="audio/*" required 
+                                   class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="apiEndpoint" class="block text-sm font-medium text-gray-700">
+                            API 端点
+                            <span class="text-xs text-gray-500">服务器接口地址</span>
+                        </label>
+                        <input type="text" id="apiEndpoint" name="api_endpoint_url" 
+                               placeholder="https://api.siliconflow.cn/v1/audio/transcriptions" required 
+                               class="block w-full rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="apiKey" class="block text-sm font-medium text-gray-700">
+                            API 密钥
+                            <span class="text-xs text-gray-500">您的访问凭证</span>
+                        </label>
+                        <input type="text" id="apiKey" name="api_key" placeholder="请输入您的 API 密钥" required 
+                               class="block w-full rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="modelName" class="block text-sm font-medium text-gray-700">
+                            模型选择
+                            <span class="text-xs text-gray-500">选择转录模型</span>
+                        </label>
+                        <input type="text" id="modelName" name="model_name" 
+                               placeholder="FunAudioLLM/SenseVoiceSmall" required 
+                               class="block w-full rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    </div>
+                    
+                    <button type="button" id="submitBtn" 
+                            class="w-full rounded-lg text-base text-white">
+                        <span>开始转录</span>
+                    </button>
+                </form>
+            </div>
+
+            <div class="md:w-3/5 mt-8 md:mt-0">
+                <div class="bg-white p-8 rounded-xl shadow-sm h-full">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold text-gray-800">转录结果</h2>
+                        <button id="copyBtn" class="hidden px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                            复制文本
+                        </button>
+                    </div>
+                    <div id="statusMessage" class="status-message hidden"></div>
+                    <pre id="transcriptionResult" class="rounded-lg text-gray-700 text-sm p-4 min-h-[300px] max-h-[500px] overflow-y-auto whitespace-pre-wrap break-words bg-gray-50"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center text-gray-600 mt-8 text-sm">
+        <p><a href="https://github.com/Qianxia666/siliconflow-speech-to-text" target="_blank" class="hover:text-indigo-600 transition-colors">©siliconflow-speech-to-text</a></p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        // 显示选择的文件名
+        document.getElementById('audioFile').addEventListener('change', function(e) {
+            const fileName = e.target.files[0] ? e.target.files[0].name : '未选择文件';
+            document.getElementById('fileNameDisplay').textContent = fileName;
+        });
+    </script>
+</body>
+</html> 
