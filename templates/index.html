@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#f7f9f8">
-    <title>音频转录校准工具</title>
+    <meta name="theme-color" content="#f3f3f3">
+    <title>语音转写 · Windows 版</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
 </head>
-<body
+<body class="win"
     data-max-upload-bytes="{{ max_upload_bytes }}"
     data-max-upload-mb="{{ max_upload_mb }}"
     data-max-text-chars="{{ max_text_chars }}"
@@ -17,174 +17,172 @@
     data-summary-configured="{{ 'true' if summary_configured else 'false' }}"
     data-notes-configured="{{ 'true' if notes_configured else 'false' }}">
 
-    <header class="app-header">
-        <div class="brand-block" aria-label="音频转录校准工具">
-            <span class="brand-mark" aria-hidden="true">
-                <img src="{{ url_for('static', filename='favicon.svg') }}" alt="">
-            </span>
-            <span class="brand-copy">
-                <strong>声稿</strong>
-                <span>音频转录工作台</span>
-            </span>
-        </div>
+<header class="titlebar">
+    <span class="app-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
+            <rect x="3" y="3" width="7.5" height="7.5" rx="1"></rect>
+            <rect x="13.5" y="3" width="7.5" height="7.5" rx="1"></rect>
+            <rect x="3" y="13.5" width="7.5" height="7.5" rx="1"></rect>
+            <path d="M13.5 17h7.5M17.25 13.5v7"></path>
+        </svg>
+    </span>
+    <div class="app-title">
+        <strong>语音转写</strong>
+        <span>Windows 桌面版</span>
+    </div>
+    <div class="title-right">
+        <span class="local-chip"><i aria-hidden="true"></i>本地运行</span>
+        <a class="title-link" href="{{ repository_url }}" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </div>
+</header>
 
-        <div class="header-actions">
-            <span class="system-state">
-                <span class="system-state-dot" aria-hidden="true"></span>
-                本地服务在线
-            </span>
-            <a class="repository-link" href="{{ repository_url }}" target="_blank" rel="noopener noreferrer">GitHub</a>
-        </div>
-    </header>
+<div class="cmdbar" role="toolbar" aria-label="转录命令">
+    <button type="submit" form="transcriptionForm" id="submitBtn" class="cmd cmd-accent" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 16V4"></path><path d="m7 9 5-5 5 5"></path>
+            <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"></path>
+        </svg>
+        <span data-button-label>开始转录</span>
+    </button>
 
-    <main class="app-shell">
-        <aside class="task-panel" aria-labelledby="taskPanelTitle">
-            <div class="panel-heading">
-                <p class="section-kicker">新建任务</p>
-                <h1 id="taskPanelTitle">音频转录</h1>
-                <p class="section-summary">上传限制 {{ max_upload_mb }} MB</p>
+    <span class="cmd-sep" aria-hidden="true"></span>
+
+    <button type="button" id="recalibrateBtn" class="cmd" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 12a8 8 0 1 1-2.4-5.7"></path><path d="M20 4v4h-4"></path>
+        </svg>
+        <span data-button-label>重新校准</span>
+    </button>
+    <button type="button" id="summarizeBtn" class="cmd" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 6h16"></path><path d="M4 11h11"></path><path d="M4 16h14"></path><path d="M4 21h8"></path>
+        </svg>
+        <span data-button-label>生成摘要</span>
+    </button>
+    <button type="button" id="generateNotesBtn" class="cmd" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 4h11l3 3v13H5z"></path><path d="M8 9h8M8 13h8M8 17h5"></path>
+        </svg>
+        <span data-button-label>生成笔记</span>
+    </button>
+
+    <span class="cmd-grow"></span>
+
+    <button type="button" id="copyBtn" class="cmd cmd-quiet" disabled title="复制当前内容">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="9" y="9" width="11" height="11" rx="1.5"></rect>
+            <path d="M5 15V5h10"></path>
+        </svg>
+        <span data-button-label>复制</span>
+    </button>
+</div>
+
+<div class="win-body">
+    <aside class="side">
+        <section class="card file-card" aria-labelledby="taskPanelTitle">
+            <div class="card-head">
+                <h1 id="taskPanelTitle">任务</h1>
+                <span class="card-tag">{{ max_upload_mb }} MB</span>
             </div>
 
-            <form id="transcriptionForm" class="transcription-form" data-testid="transcription-form">
-                <label for="audioFile" id="audioFileLabel" class="upload-zone" data-testid="upload-zone">
-                    <span class="upload-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M17.5 22h.5a2 2 0 0 0 2-2v-7.5L13.5 6H6a2 2 0 0 0-2 2v3"></path>
-                            <path d="M14 2v6h6"></path>
-                            <path d="M2 15v3"></path>
-                            <path d="M6 13v7"></path>
-                            <path d="M10 15v3"></path>
+            <form id="transcriptionForm" data-testid="transcription-form">
+                <label for="audioFile" id="audioFileLabel" class="picker" data-testid="upload-zone">
+                    <span class="picker-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                         </svg>
                     </span>
-                    <span class="upload-copy">
+                    <span class="picker-copy">
                         <strong>选择音频文件</strong>
                         <span>MP3、WAV、M4A、FLAC</span>
                     </span>
-                    <span class="upload-action">浏览</span>
                 </label>
                 <input type="file" id="audioFile" name="audio_file" accept="audio/*" required class="visually-hidden">
 
-                <div id="fileSummary" class="file-summary" hidden>
-                    <span class="file-type-mark" aria-hidden="true">A</span>
-                    <span class="file-details">
+                <div id="fileSummary" class="file-row" hidden>
+                    <span class="file-avatar" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 18V6l10-2v12"></path>
+                            <circle cx="6.5" cy="18" r="2.5"></circle>
+                            <circle cx="16.5" cy="16" r="2.5"></circle>
+                        </svg>
+                    </span>
+                    <span class="file-text">
                         <strong id="fileNameDisplay">未选择文件</strong>
                         <span id="fileMetaDisplay">等待选择</span>
                     </span>
-                    <span class="file-ready-mark" aria-label="文件已就绪">就绪</span>
+                    <span class="file-ok">已选择</span>
                 </div>
-
-                <button type="submit" id="submitBtn" class="button button-primary button-full" disabled>
-                    <span data-button-label>开始转录</span>
-                    <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M5 12h14"></path>
-                        <path d="m13 5 7 7-7 7"></path>
-                    </svg>
-                </button>
             </form>
-
-            <section class="capability-section" aria-labelledby="capabilityTitle">
-                <div class="capability-heading">
-                    <h2 id="capabilityTitle">处理能力</h2>
-                    <span>服务配置</span>
-                </div>
-                <ul class="capability-list">
-                    <li>
-                        <span class="capability-name"><span class="capability-dot {{ 'is-ready' if s2t_configured else 'is-offline' }}"></span>语音转录</span>
-                        <span class="capability-value">{{ '可用' if s2t_configured else '未配置' }}</span>
-                    </li>
-                    <li>
-                        <span class="capability-name"><span class="capability-dot {{ 'is-ready' if calibration_configured else 'is-offline' }}"></span>文本校准</span>
-                        <span class="capability-value">{{ '可用' if calibration_configured else '未配置' }}</span>
-                    </li>
-                    <li>
-                        <span class="capability-name"><span class="capability-dot {{ 'is-ready' if summary_configured else 'is-offline' }}"></span>智能摘要</span>
-                        <span class="capability-value">{{ '可用' if summary_configured else '未配置' }}</span>
-                    </li>
-                    <li>
-                        <span class="capability-name"><span class="capability-dot {{ 'is-ready' if notes_configured else 'is-offline' }}"></span>结构笔记</span>
-                        <span class="capability-value">{{ '可用' if notes_configured else '未配置' }}</span>
-                    </li>
-                </ul>
-            </section>
-
-            <p class="panel-footnote">文本处理上限 {{ max_text_chars }} 字符</p>
-        </aside>
-
-        <section class="workspace" aria-labelledby="workspaceTitle" data-testid="workspace">
-            <header class="workspace-header">
-                <div class="workspace-title-block">
-                    <p class="section-kicker">当前任务</p>
-                    <div class="workspace-title-row">
-                        <h2 id="workspaceTitle">转录工作区</h2>
-                        <span id="workspaceStatus" class="workspace-status" data-state="idle">等待音频</span>
-                    </div>
-                </div>
-                <button type="button" id="copyBtn" class="button button-secondary" disabled title="复制当前内容">
-                    <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <rect width="14" height="14" x="8" y="8" rx="2"></rect>
-                        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
-                    </svg>
-                    <span data-button-label>复制</span>
-                </button>
-            </header>
-
-            <div class="command-bar">
-                <div class="view-tabs" role="tablist" aria-label="结果视图">
-                    <button type="button" id="sourceTab" class="view-tab is-active" role="tab" aria-selected="true" aria-controls="resultContent" data-view="source">原文</button>
-                    <button type="button" id="summaryTab" class="view-tab" role="tab" aria-selected="false" aria-controls="resultContent" data-view="summary" disabled>摘要</button>
-                    <button type="button" id="notesTab" class="view-tab" role="tab" aria-selected="false" aria-controls="resultContent" data-view="notes" disabled>笔记</button>
-                </div>
-
-                <div class="action-group" aria-label="文本处理工具">
-                    <button type="button" id="recalibrateBtn" class="button button-quiet" disabled>
-                        <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M21 12a9 9 0 0 0-15.5-6.2L3 8"></path>
-                            <path d="M3 3v5h5"></path>
-                            <path d="M3 12a9 9 0 0 0 15.5 6.2L21 16"></path>
-                            <path d="M16 16h5v5"></path>
-                        </svg>
-                        <span data-button-label>重新校准</span>
-                    </button>
-                    <button type="button" id="summarizeBtn" class="button button-quiet" disabled>
-                        <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M8 6h13"></path><path d="M8 12h13"></path><path d="M8 18h13"></path>
-                            <path d="M3 6h.01"></path><path d="M3 12h.01"></path><path d="M3 18h.01"></path>
-                        </svg>
-                        <span data-button-label>生成摘要</span>
-                    </button>
-                    <button type="button" id="generateNotesBtn" class="button button-quiet" disabled>
-                        <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"></path>
-                            <path d="M8 7h8"></path><path d="M8 11h6"></path>
-                        </svg>
-                        <span data-button-label>生成笔记</span>
-                    </button>
-                </div>
-            </div>
-
-            <div id="statusMessage" class="status-message" role="status" aria-live="polite" hidden></div>
-
-            <div class="result-surface">
-                <div id="emptyState" class="empty-state" data-testid="empty-state">
-                    <div class="waveform" aria-hidden="true">
-                        <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-                    </div>
-                    <h3>等待转录</h3>
-                    <p>尚无转录内容</p>
-                </div>
-
-                <article id="resultContent" class="result-content" role="tabpanel" aria-live="polite" hidden>
-                    <header class="result-meta-bar">
-                        <span id="activeViewLabel" class="result-view-label">原文</span>
-                        <span id="resultStats" class="result-stats">0 字符</span>
-                    </header>
-                    <pre id="transcriptionResult" class="transcription-output" tabindex="0"></pre>
-                </article>
-            </div>
         </section>
-    </main>
 
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+        <section class="card caps-card" aria-labelledby="capabilityTitle">
+            <div class="card-head">
+                <h2 id="capabilityTitle">处理能力</h2>
+            </div>
+            <ul class="cap-list">
+                <li>
+                    <span class="cap-label"><i class="cap-dot {{ 'on' if s2t_configured else '' }}"></i>语音转录</span>
+                    <span class="cap-value">{{ '可用' if s2t_configured else '未配置' }}</span>
+                </li>
+                <li>
+                    <span class="cap-label"><i class="cap-dot {{ 'on' if calibration_configured else '' }}"></i>文本校准</span>
+                    <span class="cap-value">{{ '可用' if calibration_configured else '未配置' }}</span>
+                </li>
+                <li>
+                    <span class="cap-label"><i class="cap-dot {{ 'on' if summary_configured else '' }}"></i>智能摘要</span>
+                    <span class="cap-value">{{ '可用' if summary_configured else '未配置' }}</span>
+                </li>
+                <li>
+                    <span class="cap-label"><i class="cap-dot {{ 'on' if notes_configured else '' }}"></i>结构笔记</span>
+                    <span class="cap-value">{{ '可用' if notes_configured else '未配置' }}</span>
+                </li>
+            </ul>
+        </section>
+
+        <p class="side-note">文本处理上限 {{ max_text_chars }} 字符 · 数据仅在本机流转</p>
+    </aside>
+
+    <main class="workspace content" aria-labelledby="workspaceTitle">
+        <div class="tabs" role="tablist" aria-label="结果视图">
+            <button type="button" id="sourceTab" class="tab is-active" role="tab" aria-selected="true" aria-controls="resultContent" data-view="source">原文</button>
+            <button type="button" id="summaryTab" class="tab" role="tab" aria-selected="false" aria-controls="resultContent" data-view="summary" disabled>摘要</button>
+            <button type="button" id="notesTab" class="tab" role="tab" aria-selected="false" aria-controls="resultContent" data-view="notes" disabled>笔记</button>
+            <span class="tab-grow"></span>
+            <span id="workspaceStatus" class="doc-state" data-state="idle">等待音频</span>
+        </div>
+
+        <div id="statusMessage" class="status-message" role="status" aria-live="polite" hidden></div>
+
+        <div class="doc">
+            <div id="emptyState" class="blank" data-testid="empty-state">
+                <span class="blank-icon" aria-hidden="true">
+                    <svg viewBox="0 0 96 96" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 24a6 6 0 0 1 6-6h26l14 14v40a6 6 0 0 1-6 6H26a6 6 0 0 1-6-6z"></path>
+                        <path d="M52 18v14h14"></path>
+                        <path d="M34 56h22M34 66h14"></path>
+                    </svg>
+                </span>
+                <h3 id="workspaceTitle">还没有转录结果</h3>
+                <p>先选一个音频文件，再点上方「开始转录」。</p>
+                <ol class="blank-steps">
+                    <li><b>1</b>选择音频</li>
+                    <li><b>2</b>转录与校准</li>
+                    <li><b>3</b>摘要或笔记</li>
+                </ol>
+            </div>
+
+            <article id="resultContent" class="result" role="tabpanel" aria-live="polite" hidden>
+                <header class="result-head">
+                    <span id="activeViewLabel" class="result-view">原文</span>
+                    <span id="resultStats" class="result-stats">0 字符</span>
+                </header>
+                <pre id="transcriptionResult" class="result-text" tabindex="0"></pre>
+            </article>
+        </div>
+    </main>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
