@@ -95,23 +95,24 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateWorkspaceStatus() {
+        let stage = 'idle';
         if (busy) {
             workspaceStatus.textContent = '正在处理';
             workspaceStatus.dataset.state = 'busy';
-            return;
-        }
-        if (currentCalibratedText.trim()) {
+            stage = 'busy';
+        } else if (currentCalibratedText.trim()) {
             workspaceStatus.textContent = '处理完成';
             workspaceStatus.dataset.state = 'done';
-            return;
-        }
-        if (selectedFile) {
-            workspaceStatus.textContent = '准备就绪';
+            stage = 'done';
+        } else if (selectedFile) {
+            workspaceStatus.textContent = '待开始';
             workspaceStatus.dataset.state = 'ready';
-            return;
+            stage = 'ready';
+        } else {
+            workspaceStatus.textContent = '等待音频';
+            workspaceStatus.dataset.state = 'idle';
         }
-        workspaceStatus.textContent = '等待音频';
-        workspaceStatus.dataset.state = 'idle';
+        document.body.dataset.stage = stage;
     }
 
     function getDisplayedText() {
